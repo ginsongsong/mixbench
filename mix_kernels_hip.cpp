@@ -21,6 +21,8 @@ typedef __half2 half2;
 
 #define UNROLLED_MEMORY_ACCESSES (UNROLL_ITERATIONS/2)
 
+
+#define BLOCKSIZE 256
 template<class T>
 inline __device__ T mad(const T& a, const T& b, const T& c){ return a*b+c; }
 
@@ -115,7 +117,7 @@ float finalizeEvents(hipEvent_t start, hipEvent_t stop){
 
 void runbench_warmup(double *cd, long size){
 	const long reduced_grid_size = size/(UNROLLED_MEMORY_ACCESSES)/32;
-	const int BLOCK_SIZE = 256;
+	const int BLOCK_SIZE = BLOCKSIZE;
 	const int TOTAL_REDUCED_BLOCKS = reduced_grid_size/BLOCK_SIZE;
 
 	dim3 dimBlock(BLOCK_SIZE, 1, 1);
@@ -134,7 +136,7 @@ void runbench(double *cd, long size){
 	}
 
 	const long compute_grid_size = size/(UNROLLED_MEMORY_ACCESSES)/2;
-	const int BLOCK_SIZE = 256;
+	const int BLOCK_SIZE = BLOCKSIZE;
 	const int TOTAL_BLOCKS = compute_grid_size/BLOCK_SIZE;
 	const long long computations = 2*(long long)(COMP_ITERATIONS)*REGBLOCK_SIZE*compute_grid_size;
 	const long long memoryoperations = (long long)(COMP_ITERATIONS)*compute_grid_size;
@@ -202,6 +204,7 @@ extern "C" void mixbenchGPU(double *c, long size){
 
 	runbench_warmup(cd, size);
 
+	//for(int x=31;x<32;x++)
 	runbench<32>(cd, size);
 	runbench<31>(cd, size);
 	runbench<30>(cd, size);
@@ -234,7 +237,7 @@ extern "C" void mixbenchGPU(double *c, long size){
 	runbench<3>(cd, size);
 	runbench<2>(cd, size);
 	runbench<1>(cd, size);
-	runbench<0>(cd, size);
+	runbench<0>(cd, size);	
 
 	printf("--------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
 

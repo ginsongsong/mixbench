@@ -12,14 +12,16 @@
 #include "mix_kernels_hip.h"
 #include "version_info.h"
 
-#define VECTOR_SIZE (32*1024*1024)
 
 void init_vector(double *v, size_t datasize){
 	for(int i=0; i<(int)datasize; i++)
 		v[i] = i;
 }
 
-int main(int argc, char* argv[]) {
+
+
+
+void fma( int VECTOR_SIZE) {
 	printf("mixbench-hip/read-only (%s)\n", VERSION_INFO);
 
 	unsigned int datasize = VECTOR_SIZE*sizeof(double);
@@ -40,5 +42,16 @@ int main(int argc, char* argv[]) {
 
 	free(c);
 
-	return 0;
+}
+
+int main(int argc, char* argv[]){
+
+for(int j=64; j <= 52480 ; j+=64)
+{
+   printf("FMA %d\n", j*256);
+   fma(256*j);
+}
+printf("FMA last%d\n", 32*1024*1024);
+fma(32*1024*1024); 
+return 0;
 }
